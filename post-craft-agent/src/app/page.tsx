@@ -59,6 +59,17 @@ export default function LinkedInPostGenerator() {
   const [regeneratingPost, setRegeneratingPost] = useState<number | null>(null);
   const [drafts, setDrafts] = useState<PostContent[]>([]);
   const [activeTab, setActiveTab] = useState("generated");
+  const [cooldown, setCooldown] = useState<number>(0);
+
+  // cooldown effect
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => {
+        setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown]);
 
   // Load drafts from sessionStorage on mount
   useEffect(() => {
@@ -197,6 +208,8 @@ export default function LinkedInPostGenerator() {
   };
 
   const regeneratePost = async (idx: number, tone: string) => {
+    if (cooldown > 0) return;
+    setCooldown(180);
     if (!input.trim()) return;
     setRegeneratingPost(idx);
     setError(null);
@@ -236,6 +249,8 @@ export default function LinkedInPostGenerator() {
   };
 
   async function generatePosts() {
+    if (cooldown > 0) return; // stop multiple calls
+    setCooldown(180); // 2 min
     if (!input.trim() || tones.length === 0) {
       toast.error("Please enter text and select at least one tone");
       return;
@@ -444,8 +459,8 @@ export default function LinkedInPostGenerator() {
             )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button disabled={loading || tones.length === 0 || !input.trim() || isOverLimit}>
-                  {loading ? "Generating..." : "Generate Posts"}
+                <Button disabled={loading || tones.length === 0 || !input.trim() || isOverLimit || cooldown > 0}>
+                  {loading ? "Generating..." : cooldown > 0 ? `Wait ${cooldown}s` : "Generate Posts"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -609,11 +624,11 @@ export default function LinkedInPostGenerator() {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline" onClick={() => regeneratePost(idx, tones[idx] || tones[0])}>
+                                    <Button disabled={cooldown > 0} size="sm" variant="outline" onClick={() => regeneratePost(idx, tones[idx] || tones[0])}>
                                       <RefreshCw className="h-4 w-4" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="bottom">Regenerate post</TooltipContent>
+                                  <TooltipContent side="bottom">{cooldown > 0 ? `Wait ${cooldown}s` : "Regenerate"}</TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                               <TooltipProvider>
