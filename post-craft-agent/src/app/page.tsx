@@ -1,78 +1,4 @@
-// "use client";
-// import { useState } from "react";
 
-// export default function LinkedInPostGenerator() {
-//   const [input, setInput] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const [posts, setPosts] = useState<string[]>([]);
-
-//   async function generatePosts() {
-//     if (!input.trim()) return;
-//     setLoading(true);
-//     setPosts([]);
-
-//     try {
-//       const res = await fetch("/api/generate-posts", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ text: input }),
-//       });
-
-//       if (!res.ok) {
-//         console.error("API error", res.status);
-//         return;
-//       }
-
-//       const data = await res.json();
-//       setPosts(Array.isArray(data.posts) ? data.posts : []);
-//     } catch (error) {
-//       console.error("Error generating posts", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   return (
-//     <div className="max-w-3xl mx-auto p-6 space-y-6">
-//       <h1 className="text-3xl font-bold text-center">Post Generator</h1>
-
-//       <textarea
-//         className="w-full p-4 rounded-lg border border-gray-300 focus:ring focus:ring-blue-300 "
-//         rows={6}
-//         placeholder="Paste blog link, text, or idea..."
-//         value={input}
-//         onChange={(e) => setInput(e.target.value)}
-//       />
-
-//       <button
-//         onClick={generatePosts}
-//         disabled={loading}
-//         className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-//       >
-//         {loading ? "Generating..." : "Generate Posts"}
-//       </button>
-
-//       {Array.isArray(posts) && posts.length > 0 && (
-//         <div className="space-y-4">
-//           {posts.map((post, idx) => (
-//             <div
-//               key={idx}
-//               className="rounded-lg border p-4 shadow-sm"
-//             >
-//               <p className="whitespace-pre-line">{post}</p>
-//               <button
-//                 className="mt-2 rounded-md border px-3 py-1 text-sm"
-//                 onClick={() => navigator.clipboard.writeText(post)}
-//               >
-//                 Copy
-//               </button>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState } from "react";
@@ -101,19 +27,39 @@ export default function LinkedInPostGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [cookieAccepted, setCookieAccepted] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(true);
-  const [posts, setPosts] = useState<string[]>([
-    // Professional
-    "💼 Example (Professional): Effective communication is the foundation of successful teamwork. By keeping our processes clear and transparent, we ensure better outcomes for clients and colleagues alike. #Leadership #Teamwork",
-
-    // Casual
-    "😎 Example (Casual): Just wrapped up a late-night debugging session. Code finally works — time for coffee ☕️ and a nap. Anyone else living the developer life? 😂 #DevLife #CoffeePowered",
-
-    // Inspirational
-    "🌟 Example (Inspirational): Every big achievement is the sum of small, consistent steps. Keep pushing forward, no matter how small the progress may seem. 🚀 #Motivation #GrowthMindset",
-
-    // Funny
-    "😂 Example (Funny): Tried explaining my job to my grandma… now she thinks I ‘fix the internet’ for everyone. Close enough, right? #TechHumor #DeveloperLife",
-  ]);
+  const [posts, setPosts] = useState<any[]>(
+    [
+      {
+        "hook": "We spent 6 months building a feature. Users tried it for 30 seconds and vanished faster than free donuts at a meeting. 🍩💨",
+        "story": "Our team poured our hearts, souls, and an alarming amount of caffeine into this new 'game-changing' feature. We envisioned standing ovations, tearful thank-yous, and maybe even a Nobel Prize for user experience. Instead, we got... crickets. And a single, polite un-install. Apparently, our magnum opus was less 'revolutionary discovery' and more 'slightly inconvenient detour'. 🤷‍♀️",
+        "value": null,
+        "list": null,
+        "cta": "What's the shortest amount of time you've spent with a feature before deciding it wasn't your soulmate? Asking for a friend (it's me, I'm the friend). 👇",
+        "quote": null,
+        "stat": null,
+        "hashtags": [
+          "#productdevelopment",
+          "#startupfail",
+          "#userfeedback",
+          "#tech"
+        ]
+      },
+      {
+        "hook": "Six months of development. Thirty seconds of user testing. A stark lesson in product-market fit.",
+        "story": "We invested significant resources into building a new feature, believing it would solve a key user pain point. Post-launch, we observed an alarming trend: users engaged for less than 30 seconds before abandoning the feature entirely. This wasn't a bug; it was a signal that our assumptions about user needs were misaligned with reality.",
+        "value": "This experience underscores the critical importance of continuous, early-stage user validation throughout the development lifecycle. Prioritizing qualitative feedback and rapid iteration cycles over extended, feature-focused development can prevent costly missteps and ensure resources are directed towards truly valuable solutions.",
+        "list": null,
+        "cta": "How do you balance deep development cycles with agile user validation to de-risk new feature launches?",
+        "quote": null,
+        "stat": null,
+        "hashtags": [
+          "#productmanagement",
+          "#userexperience",
+          "#productdevelopment",
+          "#leanstartup"
+        ]
+      }
+    ]);
 
   const toggleTone = (tone: string) => {
     setTones((prev) => {
@@ -127,8 +73,33 @@ export default function LinkedInPostGenerator() {
     });
   };
 
+  // async function generatePosts() {
+  //   if (!input.trim()) return;
+  //   setLoading(true);
+  //   setPosts([]);
+
+  //   try {
+  //     const res = await fetch("/api/generate-posts", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ text: input }),
+  //     });
+
+  //     if (!res.ok) {
+  //       console.error("API error", res.status);
+  //       return;
+  //     }
+
+  //     const data = await res.json();
+  //     setPosts(Array.isArray(data.posts) ? data.posts : []);
+  //   } catch (error) {
+  //     console.error("Error generating posts", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
   async function generatePosts() {
-    if (!input.trim()) return;
+    if (!input.trim() || tones.length === 0) return;
     setLoading(true);
     setPosts([]);
 
@@ -136,7 +107,7 @@ export default function LinkedInPostGenerator() {
       const res = await fetch("/api/generate-posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input }),
+        body: JSON.stringify({ text: input, tones }),
       });
 
       if (!res.ok) {
@@ -145,7 +116,29 @@ export default function LinkedInPostGenerator() {
       }
 
       const data = await res.json();
-      setPosts(Array.isArray(data.posts) ? data.posts : []);
+      let rawPosts = Array.isArray(data.posts) ? data.posts : [];
+      let formattedPosts: any[] = [];
+
+      rawPosts.forEach((p: any) => {
+        try {
+          // Remove markdown fences
+          const clean = p.replace(/```json|```/g, "").trim();
+
+          // Parse JSON
+          const parsed = JSON.parse(clean);
+
+          if (parsed.post) {
+            formattedPosts.push(parsed.post); // keep structured
+          }
+        } catch (err) {
+          console.error("Parse error:", err);
+        }
+      });
+      console.log('formattedPosts', formattedPosts);
+
+      setPosts(formattedPosts);
+
+
     } catch (error) {
       console.error("Error generating posts", error);
     } finally {
@@ -153,8 +146,9 @@ export default function LinkedInPostGenerator() {
     }
   }
 
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6">
       {showCookieBanner && (
         <Card className="fixed bottom-0 inset-x-0  border-t m-4 py-4 px-8 shadow-md z-50">
           <div className="flex items-center justify-between gap-2 ">
@@ -177,7 +171,7 @@ export default function LinkedInPostGenerator() {
       <Card className="overflow-visible">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
-            <CardTitle className="text-2xl">LinkedIn Post Generator</CardTitle>
+            <CardTitle className="text-2xl">Post Generator</CardTitle>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -269,19 +263,18 @@ export default function LinkedInPostGenerator() {
             </AlertDialog>
           </div>
 
-          <Separator />
+          {/* <Separator /> */}
 
           {posts.length === 0 ? (
             <div className="text-sm text-muted-foreground">No posts yet — enter text, choose tones, and click Generate.</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Array.isArray(posts) && posts.length > 0 && posts.map((post, idx) => (
-                <article key={idx} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <p className=" text-sm">{post}</p>
-                    </div>
-                    <div className="flex flex-col gap-2">
+              {Array.isArray(posts) && posts.length > 0 &&
+                posts.map((post, idx) => (
+                  <article key={idx} className="border rounded-xl p-4 space-y-3">
+                    <div className="flex flex-row justify-between gap-2">
+                      {/* Hook */}
+                      <h3 className="font-bold text-xl">{post.hook}</h3>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -293,9 +286,42 @@ export default function LinkedInPostGenerator() {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                  </div>
-                </article>
-              ))}
+
+                    <p className="text-sm">{post.story}</p>
+                    <p className="text-sm font-medium">{post.value}</p>
+
+                    {post.quote && (
+                      <blockquote className="italic border-l-4 pl-3 text-gray-600">
+                        “{post.quote}”
+                      </blockquote>
+                    )}
+
+                    {post.stat && (
+                      <p className="text-sm text-blue-700 font-semibold">
+                        📊 {post.stat}
+                      </p>
+                    )}
+
+                    {post.list && post.list.length > 0 && (
+                      <ul className="list-disc pl-5 text-sm space-y-1">
+                        {post.list.map((tip: string, i: number) => (
+                          <li key={i}>{tip}</li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {post.cta && (
+                      <p className="mt-2 font-semibold text-sm">{post.cta}</p>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 mt-2 text-xs">
+                      {post.hashtags?.map((tag: string, i: number) => (
+                        <span key={i}>{tag}</span>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+
             </div>
           )}
         </CardContent>
