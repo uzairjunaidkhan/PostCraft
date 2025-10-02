@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+type TavilyResult = {
+  title: string;
+  url: string;
+  content: string;
+};
+
+type TavilyResponse = {
+  answer?: string;
+  results?: TavilyResult[];
+};
+
+
 const MODEL_NAME = "gemini-2.5-flash-lite";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
@@ -34,7 +46,7 @@ export async function POST(req: Request) {
             
             const summary =
                 searchData?.answer ||
-                searchData?.results?.map((r: any) => r.content).join(" ");
+                searchData?.results?.map((r: TavilyResult) => r.content).join(" ");
                 
             if (summary) {
                 contextText = summary.slice(0, 3000); // cap length for Gemini
