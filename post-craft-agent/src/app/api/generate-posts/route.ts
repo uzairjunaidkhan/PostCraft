@@ -1,51 +1,10 @@
-// // src/app/api/generate-posts/route.ts
-// import { NextResponse } from "next/server";
-// import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// const MODEL_NAME = "gemini-2.5-flash-lite";
-// const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-
-// export async function POST(req: Request) {
-//   try {
-//     const { text } = await req.json();
-
-//     const prompt = `You are an expert LinkedIn content writer.
-// Turn this text into 3 LinkedIn posts:
-// 1. Storytelling style
-// 2. Professional style
-// 3. Engaging question style
-// Add line breaks for readability.
-// Text: ${text}`;
-
-//     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-
-//     const result = await model.generateContent(prompt);
-
-//     // Extract plain text
-//     const generated =
-//       result.response.candidates
-//         ?.flatMap(c =>
-//           c.content?.parts?.map(p => p.text).filter(Boolean)
-//         )
-//         .filter(Boolean) || [];
-
-//         console.log('generated',generated);
-
-//     return NextResponse.json({ posts: generated });
-//   } catch (err) {
-//     console.error("Generation error:", err);
-//     return NextResponse.json(
-//       { error: "Failed to generate posts" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const MODEL_NAME = "gemini-2.5-flash-lite";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+
+const isUrl = (str: string) => /^https?:\/\/[^\s]+$/.test(str);
 
 export async function POST(req: Request) {
     try {
@@ -53,6 +12,33 @@ export async function POST(req: Request) {
 
         if (!text || !tones || tones.length === 0) {
             return NextResponse.json({ error: "Missing text or tones" }, { status: 400 });
+        }
+        let contextText = text;
+
+        // 🔎 Step 1: If it's a URL, fetch article summary via Tavily
+        if (isUrl(text)) {
+            const searchRes = await fetch("https://api.tavily.com/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.TAVILY_API_KEY!}`,
+                },
+                body: JSON.stringify({
+                    query: text,
+                    include_answer: true,
+                    max_results: 3,
+                }),
+            });
+
+            const searchData = await searchRes.json();
+            
+            const summary =
+                searchData?.answer ||
+                searchData?.results?.map((r: any) => r.content).join(" ");
+                
+            if (summary) {
+                contextText = summary.slice(0, 3000); // cap length for Gemini
+            }
         }
 
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -66,7 +52,7 @@ export async function POST(req: Request) {
             // Add line breaks for readability.
             // Text: ${text}`;
 
-            const prompt = `You are an expert LinkedIn content writer. Write exactly 1 authentic LinkedIn post in a ${tone} tone about: ${text}
+            const prompt = `You are an expert LinkedIn content writer. Write exactly 1 authentic LinkedIn post in a ${tone} tone about: ${contextText}
 Return ONLY valid JSON (no markdown, no explanation). Use this schema:
 
 {
