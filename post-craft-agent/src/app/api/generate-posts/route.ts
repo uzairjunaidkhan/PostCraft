@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-        let generatedPosts: string[] = [];
+        const generatedPosts: string[] = [];
 
         for (const tone of tones) {
             //             const prompt = `You are an expert LinkedIn content writer.
