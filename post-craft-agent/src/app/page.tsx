@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PostHealthCheck from "@/components/PostHealthCheck";
 
 interface PostContent {
   hook: string;
@@ -146,6 +147,33 @@ const templateCategories = {
 
 
 const MAX_LINKEDIN_CHARS = 3000;
+
+type PostCheckProps = {
+  hook: string;
+  story: string;
+  value?: any;
+  list?: string[];
+  cta?: string;
+  quote?: any;
+  stat?: any;
+  hashtags?: string[];
+};
+
+
+// 🛠️ helper function to merge post parts into one analyzable text
+const formatPostText = (post: PostCheckProps) => {
+  let parts: string[] = [];
+  if (post.hook) parts.push(post.hook);
+  if (post.story) parts.push(post.story);
+  if (post.value) parts.push(post.value);
+  if (post.list && post.list.length > 0) parts.push(post.list.join(" • "));
+  if (post.quote) parts.push(`"${post.quote}"`);
+  if (post.stat) parts.push(`Stat: ${post.stat}`);
+  if (post.cta) parts.push(post.cta);
+  if (post.hashtags && post.hashtags.length > 0) parts.push(post.hashtags.join(" "));
+  return parts.join("\n\n");
+};
+
 
 export default function LinkedInPostGenerator() {
   const [input, setInput] = useState("");
@@ -401,6 +429,8 @@ export default function LinkedInPostGenerator() {
         throw new Error("No valid posts generated");
       }
 
+      console.log('formattedPosts', formattedPosts);
+
       setPosts(formattedPosts);
       toast.success(`Generated ${formattedPosts.length} post${formattedPosts.length > 1 ? 's' : ''}!`);
     } catch (error) {
@@ -481,13 +511,13 @@ export default function LinkedInPostGenerator() {
               <p className="text-xs text-red-600 mt-1">Content exceeds LinkedIn&apos;s character limit</p>
             )}
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-4 flex-wrap">
             {Object.entries(templateCategories).map(([category, templates]) => (
               <DropdownMenu key={category}>
                 <DropdownMenuTrigger asChild>
                   <Badge
                     variant="secondary"
-                    className="cursor-pointer hover:bg-primary hover:text-black transition"
+                    className="cursor-pointer hover:bg-primary hover:text-black transition p-2"
                   >
                     {category}
                   </Badge>
@@ -617,10 +647,10 @@ export default function LinkedInPostGenerator() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="generated">
+              <TabsTrigger value="generated" className="cursor-pointer">
                 Generated Posts ({posts.length})
               </TabsTrigger>
-              <TabsTrigger value="drafts">
+              <TabsTrigger value="drafts" className="cursor-pointer">
                 Drafts ({drafts.length})
               </TabsTrigger>
             </TabsList>
@@ -633,196 +663,199 @@ export default function LinkedInPostGenerator() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {posts.map((post, idx) => (
-                    <article key={idx} className="border rounded-xl p-4 space-y-3 relative">
-                      {regeneratingPost === idx && (
-                        <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center z-10">
-                          <RefreshCw className="h-6 w-6 animate-spin" />
-                        </div>
-                      )}
-
-                      {editingPost === idx ? (
-                        <div className="space-y-3">
-                          {/* Hook */}
-                          {editedContent?.hook &&
-                            <Textarea
-                              value={editedContent?.hook || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, hook: e.target.value })}
-                              className="font-bold text-xl"
-                              rows={2}
-                            />
-                          }
-
-                          {/* Story */}
-                          {editedContent?.story &&
-                            <Textarea
-                              value={editedContent?.story || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, story: e.target.value })}
-                              rows={4}
-                              placeholder="Story"
-                            />
-                          }
-
-                          {/* Value */}
-                          {editedContent?.value &&
-                            <Textarea
-                              value={editedContent?.value || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, value: e.target.value })}
-                              rows={2}
-                              placeholder="Value"
-                            />
-                          }
-
-                          {/* Quote */}
-                          {editedContent?.quote &&
-                            <Textarea
-                              value={editedContent?.quote || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, quote: e.target.value })}
-                              rows={2}
-                              placeholder="Quote"
-                            />
-                          }
-
-                          {/* Stat */}
-                          {editedContent?.stat &&
-                            <Textarea
-                              value={editedContent?.stat || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, stat: e.target.value })}
-                              rows={2}
-                              placeholder="Stat"
-                            />
-                          }
-
-                          {/* List (one per line) */}
-                          {editedContent?.list &&
-                            <Textarea
-                              value={editedContent?.list?.join("\n") || ""}
-                              onChange={(e) =>
-                                setEditedContent({ ...editedContent!, list: e.target.value.split("\n") })
-                              }
-                              rows={4}
-                              placeholder="List items (one per line)"
-                            />
-                          }
-
-                          {/* CTA */}
-                          {editedContent?.cta &&
-                            <Textarea
-                              value={editedContent?.cta || ''}
-                              onChange={(e) => setEditedContent({ ...editedContent!, cta: e.target.value })}
-                              rows={2}
-                              placeholder="Call to action"
-                            />}
-
-                          {/* Hashtags (comma separated) */}
-                          {editedContent?.hashtags &&
-                            <Input
-                              value={editedContent?.hashtags?.join(", ") || ""}
-                              onChange={(e) =>
-                                setEditedContent({
-                                  ...editedContent!,
-                                  hashtags: e.target.value
-                                    .split(",")
-                                    .map((tag) => tag.trim())
-                                    .filter((tag) => tag),
-                                })
-                              }
-                              placeholder="Hashtags (comma separated)"
-                            />
-                          }
-
-                          {/* Save / Cancel buttons */}
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={saveEdit}>
-                              <Save className="h-4 w-4 mr-1" /> Save
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={cancelEdit}>
-                              <X className="h-4 w-4 mr-1" /> Cancel
-                            </Button>
+                    <>
+                      <article key={idx} className="border rounded-xl p-4 space-y-3 relative">
+                        {regeneratingPost === idx && (
+                          <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center z-10">
+                            <RefreshCw className="h-6 w-6 animate-spin" />
                           </div>
-                        </div>
-                      ) : (
-                        <>
+                        )}
 
-                          <div className="flex justify-between gap-2">
-                            {tones[idx] && <Badge variant="secondary" className="capitalize">
-                              {tones[idx]}
-                            </Badge>}
-                            <div className="flex gap-1 shrink-0">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline" onClick={() => startEditing(idx)}>
-                                      <Edit2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">Edit post</TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button disabled={cooldown > 0} size="sm" variant="outline" onClick={() => regeneratePost(idx, tones[idx] || tones[0])}>
-                                      <RefreshCw className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">{cooldown > 0 ? `Wait ${cooldown}s` : "Regenerate"}</TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline" onClick={() => copyPost(post)}>
-                                      <Copy className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">Copy to clipboard</TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                        {editingPost === idx ? (
+                          <div className="space-y-3">
+                            {/* Hook */}
+                            {editedContent?.hook &&
+                              <Textarea
+                                value={editedContent?.hook || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, hook: e.target.value })}
+                                className="font-bold text-xl"
+                                rows={2}
+                              />
+                            }
+
+                            {/* Story */}
+                            {editedContent?.story &&
+                              <Textarea
+                                value={editedContent?.story || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, story: e.target.value })}
+                                rows={4}
+                                placeholder="Story"
+                              />
+                            }
+
+                            {/* Value */}
+                            {editedContent?.value &&
+                              <Textarea
+                                value={editedContent?.value || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, value: e.target.value })}
+                                rows={2}
+                                placeholder="Value"
+                              />
+                            }
+
+                            {/* Quote */}
+                            {editedContent?.quote &&
+                              <Textarea
+                                value={editedContent?.quote || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, quote: e.target.value })}
+                                rows={2}
+                                placeholder="Quote"
+                              />
+                            }
+
+                            {/* Stat */}
+                            {editedContent?.stat &&
+                              <Textarea
+                                value={editedContent?.stat || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, stat: e.target.value })}
+                                rows={2}
+                                placeholder="Stat"
+                              />
+                            }
+
+                            {/* List (one per line) */}
+                            {editedContent?.list &&
+                              <Textarea
+                                value={editedContent?.list?.join("\n") || ""}
+                                onChange={(e) =>
+                                  setEditedContent({ ...editedContent!, list: e.target.value.split("\n") })
+                                }
+                                rows={4}
+                                placeholder="List items (one per line)"
+                              />
+                            }
+
+                            {/* CTA */}
+                            {editedContent?.cta &&
+                              <Textarea
+                                value={editedContent?.cta || ''}
+                                onChange={(e) => setEditedContent({ ...editedContent!, cta: e.target.value })}
+                                rows={2}
+                                placeholder="Call to action"
+                              />}
+
+                            {/* Hashtags (comma separated) */}
+                            {editedContent?.hashtags &&
+                              <Input
+                                value={editedContent?.hashtags?.join(", ") || ""}
+                                onChange={(e) =>
+                                  setEditedContent({
+                                    ...editedContent!,
+                                    hashtags: e.target.value
+                                      .split(",")
+                                      .map((tag) => tag.trim())
+                                      .filter((tag) => tag),
+                                  })
+                                }
+                                placeholder="Hashtags (comma separated)"
+                              />
+                            }
+
+                            {/* Save / Cancel buttons */}
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={saveEdit}>
+                                <Save className="h-4 w-4 mr-1" /> Save
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={cancelEdit}>
+                                <X className="h-4 w-4 mr-1" /> Cancel
+                              </Button>
                             </div>
                           </div>
-                          <h3 className="font-bold text-xl">{post.hook}</h3>
+                        ) : (
+                          <>
 
-                          <p className="text-sm whitespace-pre-wrap">{post.story}</p>
-                          {post.value && <p className="text-sm font-medium whitespace-pre-wrap">{post.value}</p>}
+                            <div className="flex justify-between gap-2">
+                              {tones[idx] && <Badge variant="secondary" className="capitalize">
+                                {tones[idx]}
+                              </Badge>}
+                              <div className="flex gap-1 shrink-0">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button size="sm" variant="outline" onClick={() => startEditing(idx)}>
+                                        <Edit2 className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">Edit post</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button disabled={cooldown > 0} size="sm" variant="outline" onClick={() => regeneratePost(idx, tones[idx] || tones[0])}>
+                                        <RefreshCw className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">{cooldown > 0 ? `Wait ${cooldown}s` : "Regenerate"}</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button size="sm" variant="outline" onClick={() => copyPost(post)}>
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">Copy to clipboard</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                            <h3 className="font-bold text-xl">{post.hook}</h3>
 
-                          {post.quote && (
-                            <blockquote className="italic border-l-4 pl-3 text-gray-600">
-                              &ldquo;{post.quote}&rdquo;
-                            </blockquote>
-                          )}
+                            <p className="text-sm whitespace-pre-wrap">{post.story}</p>
+                            {post.value && <p className="text-sm font-medium whitespace-pre-wrap">{post.value}</p>}
 
-                          {post.stat && (
-                            <p className="text-sm text-blue-700 font-semibold">
-                              📊 {post.stat}
-                            </p>
-                          )}
+                            {post.quote && (
+                              <blockquote className="italic border-l-4 pl-3 text-gray-600">
+                                &ldquo;{post.quote}&rdquo;
+                              </blockquote>
+                            )}
 
-                          {post.list && post.list.length > 0 && (
-                            <ul className="list-disc pl-5 text-sm space-y-1">
-                              {post.list.map((tip: string, i: number) => (
-                                <li key={i}>{tip}</li>
+                            {post.stat && (
+                              <p className="text-sm text-blue-700 font-semibold">
+                                📊 {post.stat}
+                              </p>
+                            )}
+
+                            {post.list && post.list.length > 0 && (
+                              <ul className="list-disc pl-5 text-sm space-y-1">
+                                {post.list.map((tip: string, i: number) => (
+                                  <li key={i}>{tip}</li>
+                                ))}
+                              </ul>
+                            )}
+
+                            {post.cta && (
+                              <p className="mt-2 font-semibold text-sm">{post.cta}</p>
+                            )}
+
+                            <div className="flex flex-wrap gap-2 mt-2 text-xs text-blue-600">
+                              {post.hashtags?.map((tag: string, i: number) => (
+                                <span key={i}>{tag}</span>
                               ))}
-                            </ul>
-                          )}
+                            </div>
 
-                          {post.cta && (
-                            <p className="mt-2 font-semibold text-sm">{post.cta}</p>
-                          )}
-
-                          <div className="flex flex-wrap gap-2 mt-2 text-xs text-blue-600">
-                            {post.hashtags?.map((tag: string, i: number) => (
-                              <span key={i}>{tag}</span>
-                            ))}
-                          </div>
-
-                          <div className="pt-2 border-t">
-                            <Button size="sm" variant="ghost" className="w-full" onClick={() => saveDraft(post)}>
-                              Save as Draft
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </article>
+                            <div className="pt-2 border-t">
+                              <Button size="sm" variant="ghost" className="w-full" onClick={() => saveDraft(post)}>
+                                Save as Draft
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </article>
+                      <PostHealthCheck text={formatPostText(post)} context="ai" />
+                    </>
                   ))}
                 </div>
               )}
