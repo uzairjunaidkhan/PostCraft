@@ -162,7 +162,7 @@ type PostCheckProps = {
 
 // 🛠️ helper function to merge post parts into one analyzable text
 const formatPostText = (post: PostCheckProps) => {
-  let parts: string[] = [];
+  const parts: string[] = [];
   if (post.hook) parts.push(post.hook);
   if (post.story) parts.push(post.story);
   if (post.value) parts.push(post.value);
@@ -339,7 +339,7 @@ export default function LinkedInPostGenerator() {
     setEditedContent(null);
   };
 
-  const useTemplate = (template: string) => {
+  const handleTemplate = (template: string) => {
     setInput(template);
     toast.success("Template loaded!");
   };
@@ -527,7 +527,7 @@ export default function LinkedInPostGenerator() {
                     <DropdownMenuItem
                       key={idx}
                       className="flex flex-col items-start space-y-1 py-2"
-                      onClick={() => useTemplate(template.content)}
+                      onClick={() => handleTemplate(template.content)}
                     >
                       <p className="font-medium text-sm">{template.label}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2">

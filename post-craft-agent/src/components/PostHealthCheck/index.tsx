@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { analyzeText, Suggestion } from "../../utils/Helpers";
-import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp } from "lucide-react";
+import { AlertTriangle, Lightbulb, TrendingUp } from "lucide-react";
 
 
 export default function PostHealthCheck({ text, context }: { text: string; context: "user" | "ai" }) {
