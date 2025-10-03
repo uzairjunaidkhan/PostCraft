@@ -16,6 +16,12 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefreshCw, Copy, Edit2, Save, X, Info, Trash2, FileText } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PostContent {
   hook: string;
@@ -40,6 +46,104 @@ const toneOptions = [
   { value: "educational", label: "Educational", description: "Teaching, how-to, informative" },
   { value: "authentic", label: "Authentic", description: "Vulnerable, real, behind-the-scenes" }
 ];
+
+const templateCategories = {
+  "Product & Work": [
+    {
+      label: "Announce a Product Launch",
+      content:
+        "We're launching [Product Name] - a solution that [key benefit]. After [time period] of development, we're excited to help [target audience] solve [problem]. Key features include: [feature 1], [feature 2], [feature 3].",
+    },
+    {
+      label: "Behind the Scenes",
+      content:
+        "Most people don't see the [aspect] of [your work]. Here's what a typical day looks like: [describe routine/process]. The hardest part? [challenge]. The most rewarding? [reward].",
+    },
+    {
+      label: "Celebrate a Team Win",
+      content:
+        "Proud of our team for achieving [milestone]. This was possible because of [key effort]. Special shoutout to [team member(s)] for [specific contribution].",
+    },
+  ],
+  "Personal & Career": [
+    {
+      label: "Share a Career Lesson",
+      content:
+        "Early in my career, I learned that [key lesson]. Here's what happened: [brief story]. This taught me [insight]. Now I always [how you apply it].",
+    },
+    {
+      label: "Ask for Advice",
+      content:
+        "I'm facing a decision about [topic] and would love your perspective. The situation: [context]. Option A: [choice]. Option B: [choice]. What would you do?",
+    },
+    {
+      label: "Career Growth Story",
+      content:
+        "Reflecting on my journey from [starting point] to [current role]. The biggest challenges I faced: [challenge 1], [challenge 2]. Key learnings that helped me grow: [lesson 1], [lesson 2].",
+    },
+  ],
+  Industry: [
+    {
+      label: "Industry Insights",
+      content:
+        "The [industry] landscape is shifting. Here's what I'm seeing: [trend 1], [trend 2], [trend 3]. This means [implication] for businesses in our space.",
+    },
+    {
+      label: "Comment on a Recent News",
+      content:
+        "Recently, [company/event] made headlines with [news]. In my view, this signals [opinion]. It could mean [impact] for [audience/industry].",
+    },
+  ],
+  "Motivation & Inspiration": [
+    {
+      label: "Motivational Thought",
+      content:
+        "Success isn’t about [common belief]. It’s about [your perspective]. Remember: [inspiring reminder]. Keep pushing forward!",
+    },
+    {
+      label: "Share a Challenge Overcome",
+      content:
+        "A while back, I struggled with [problem]. It wasn’t easy, but I overcame it by [solution/approach]. The lesson? [key takeaway].",
+    },
+  ],
+  "Networking & Community": [
+    {
+      label: "Gratitude Post",
+      content:
+        "Grateful for [person/team/community] who supported me with [situation]. Your encouragement made a huge difference. 🙏",
+    },
+    {
+      label: "Shoutout & Recognition",
+      content:
+        "Huge appreciation for [colleague/partner] who went above and beyond in [specific situation]. Your work inspires me and others!",
+    },
+  ],
+  "Tips & How-To": [
+    {
+      label: "Share Practical Tips",
+      content:
+        "Here are 3 quick tips for [topic]: 1) [tip 1] 2) [tip 2] 3) [tip 3]. Which one resonates most with you?",
+    },
+    {
+      label: "Mini Guide",
+      content:
+        "If you're struggling with [problem], here’s a simple framework: Step 1: [step 1] Step 2: [step 2] Step 3: [step 3].",
+    },
+  ],
+  "Events & Milestones": [
+    {
+      label: "Event Announcement",
+      content:
+        "Excited to share that I’ll be speaking at [event name] on [topic]. Looking forward to connecting with [audience] and exchanging ideas!",
+    },
+    {
+      label: "Work Anniversary or Milestone",
+      content:
+        "Today marks [number] years at [company]. Reflecting on the journey: biggest learnings [learning 1], [learning 2]. Excited for what’s ahead!",
+    },
+  ],
+};
+
 
 const MAX_LINKEDIN_CHARS = 3000;
 
@@ -207,6 +311,11 @@ export default function LinkedInPostGenerator() {
     setEditedContent(null);
   };
 
+  const useTemplate = (template: string) => {
+    setInput(template);
+    toast.success("Template loaded!");
+  };
+
   const regeneratePost = async (idx: number, tone: string) => {
     if (cooldown > 0) return;
     setCooldown(180);
@@ -371,6 +480,34 @@ export default function LinkedInPostGenerator() {
             {isOverLimit && (
               <p className="text-xs text-red-600 mt-1">Content exceeds LinkedIn&apos;s character limit</p>
             )}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {Object.entries(templateCategories).map(([category, templates]) => (
+              <DropdownMenu key={category}>
+                <DropdownMenuTrigger asChild>
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-primary hover:text-black transition"
+                  >
+                    {category}
+                  </Badge>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80">
+                  {templates.map((template, idx) => (
+                    <DropdownMenuItem
+                      key={idx}
+                      className="flex flex-col items-start space-y-1 py-2"
+                      onClick={() => useTemplate(template.content)}
+                    >
+                      <p className="font-medium text-sm">{template.label}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {template.content}
+                      </p>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ))}
           </div>
 
           <div>
