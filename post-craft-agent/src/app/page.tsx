@@ -151,11 +151,11 @@ const MAX_LINKEDIN_CHARS = 3000;
 type PostCheckProps = {
   hook: string;
   story: string;
-  value?: any;
+  value?: string;   // depends on what you store
   list?: string[];
   cta?: string;
-  quote?: any;
-  stat?: any;
+  quote?: string;
+  stat?: number | string;
   hashtags?: string[];
 };
 
