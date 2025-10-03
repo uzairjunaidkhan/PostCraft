@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PostHealthCheck from "@/components/PostHealthCheck";
+import { checkTextWithLT, LTMatch } from "@/utils/languageTool";
 
 interface PostContent {
   hook: string;
@@ -192,6 +193,24 @@ export default function LinkedInPostGenerator() {
   const [drafts, setDrafts] = useState<PostContent[]>([]);
   const [activeTab, setActiveTab] = useState("generated");
   const [cooldown, setCooldown] = useState<number>(0);
+  const [matches, setMatches] = useState<LTMatch[]>([]);
+  const [grammarLoading, setGrammarLoading] = useState(false);
+    // Debounce input
+  useEffect(() => {
+    if (!input.trim()) {
+      setMatches([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      setGrammarLoading(true);
+      const result = await checkTextWithLT(input);
+      setMatches(result);
+      setGrammarLoading(false);
+    }, 1500); // run 1s after stop typing
+
+    return () => clearTimeout(timeout);
+  }, [input]);
 
   // cooldown effect
   useEffect(() => {
@@ -442,6 +461,14 @@ export default function LinkedInPostGenerator() {
     }
   }
 
+  const handleCheck = async () => {
+    setLoading(true);
+    const result = await checkTextWithLT(input);
+    setMatches(result);
+    setLoading(false);
+  };
+
+
   const charCount = input.length;
   const isNearLimit = charCount > MAX_LINKEDIN_CHARS * 0.8;
   const isOverLimit = charCount > MAX_LINKEDIN_CHARS;
@@ -509,6 +536,33 @@ export default function LinkedInPostGenerator() {
             />
             {isOverLimit && (
               <p className="text-xs text-red-600 mt-1">Content exceeds LinkedIn&apos;s character limit</p>
+            )}
+          </div>
+          <div>
+            {grammarLoading && <p className="text-sm text-muted-foreground">Checking...</p>}
+
+            {matches.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <h3 className="font-semibold">💡 Suggestions:</h3>
+                <ul className="space-y-2">
+                  {matches.map((m, i) => (
+                    <li key={i} className="text-sm">
+                      <span className="text-red-600 font-medium">
+                        {m.context.text.substring(m.context.offset, m.context.offset + m.context.length)}
+                      </span>
+                      {" → "}
+                      <span className="text-green-600">
+                        {m.replacements.map((r) => r.value).join(", ")}
+                      </span>
+                      <p className="text-muted-foreground text-xs">{m.message}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {!grammarLoading && matches.length === 0 && input.trim() !== "" && (
+              <p className="text-sm text-green-600">✅ Looks good!</p>
             )}
           </div>
           <div className="flex gap-4 flex-wrap">
@@ -1099,6 +1153,6 @@ export default function LinkedInPostGenerator() {
           <div className="text-xs text-muted-foreground">Built with Gemini · ShadCN UI · Next.js</div>
         </CardFooter>
       </Card>
-    </div>
+    </div >
   );
 }
