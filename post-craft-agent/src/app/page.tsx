@@ -15,6 +15,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Github, Linkedin, Globe } from "lucide-react";
 import { RefreshCw, Copy, Edit2, Save, X, Info, Trash2, FileText } from "lucide-react";
 import {
   DropdownMenu,
@@ -195,7 +199,7 @@ export default function LinkedInPostGenerator() {
   const [cooldown, setCooldown] = useState<number>(0);
   const [matches, setMatches] = useState<LTMatch[]>([]);
   const [grammarLoading, setGrammarLoading] = useState(false);
-    // Debounce input
+  // Debounce input
   useEffect(() => {
     if (!input.trim()) {
       setMatches([]);
@@ -498,16 +502,94 @@ export default function LinkedInPostGenerator() {
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-2xl">Post Generator</CardTitle>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button size="sm" variant="ghost" onClick={() => { setInput(''); setPosts([]); setTones([]); setError(null); }}>
-                    Clear All
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Clear input and results</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="ghost" onClick={() => { setInput(''); setPosts([]); setTones([]); setError(null); }}>
+                      Clear All
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Clear input and results</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">About</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>👋 About the Project</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 text-sm text-muted-foreground leading-relaxed">
+                    {/* Creator Info */}
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src="/avatar.png" alt="Creator" />
+                        <AvatarFallback>UK</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-base font-semibold text-foreground">
+                          Uzair Khan
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          Software Engineer at Technyx Systems
+                        </p>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Project Purpose */}
+                    <div className="space-y-3">
+                      <p>
+                        This project is built as part of my journey to explore{" "}
+                        <span className="font-medium text-foreground">AI integration</span>,
+                        modern frontend tools, and full-stack experimentation.
+                      </p>
+
+                      <p>
+                        The goal is to learn, experiment, and push boundaries — integrating
+                        technologies like{" "}
+                        <span className="font-medium text-foreground">
+                          Next.js, ShadCN UI, LanguageTool, and AI post generation
+                        </span>{" "}
+                        to understand how these tools can create intelligent and creative
+                        web experiences.
+                      </p>
+
+                      <p>
+                        It’s not a commercial project — it’s an{" "}
+                        <span className="italic">experimental learning sandbox</span> for
+                        testing ideas, improving skills, and discovering new patterns in web
+                        development and AI.
+                      </p>
+                    </div>
+
+                    <Separator />
+
+                    {/* Links */}
+                    <div className="flex justify-center gap-4">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                          <Github className="h-4 w-4 mr-2" /> GitHub
+                        </a>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                          <Linkedin className="h-4 w-4 mr-2" /> LinkedIn
+                        </a>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="#" target="_blank" rel="noopener noreferrer">
+                          <Globe className="h-4 w-4 mr-2" /> Portfolio
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
 
