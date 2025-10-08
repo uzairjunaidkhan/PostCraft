@@ -501,7 +501,7 @@ export default function LinkedInPostGenerator() {
       <Card className="overflow-visible">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
-            <CardTitle className="text-2xl">Post Generator</CardTitle>
+            <CardTitle className="text-2xl">AI-powered Post Generator</CardTitle>
             <div>
               <TooltipProvider>
                 <Tooltip>
